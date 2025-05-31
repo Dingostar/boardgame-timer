@@ -69,9 +69,6 @@ pub fn App(
     };
 
     view! {
-
-        <button
-            on:click=move || {}
         <TimeTable players=players />
 
         <For each=move || players.get() key=|state| state.name.clone() let(child)>
@@ -216,12 +213,12 @@ impl Clock {
         return m;
     }
 
-    fn unpause() {
-        active.set(true)
+    fn unpause(&self) {
+        self.active.set(true)
     }
 
-    fn pause() {
-        active.set(false)
+    fn pause(&self) {
+        self.active.set(false)
     }
 }
 
