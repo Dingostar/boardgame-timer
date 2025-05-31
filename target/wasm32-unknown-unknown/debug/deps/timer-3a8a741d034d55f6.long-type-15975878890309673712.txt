@@ -1,1 +1,0 @@
-AppPropsBuilder<((leptos::prelude::ReadSignal<(i32, i32, i32, i32)>,), (leptos::prelude::RwSignal<Config>,))>

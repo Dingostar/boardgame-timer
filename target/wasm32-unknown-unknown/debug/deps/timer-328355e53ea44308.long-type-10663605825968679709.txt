@@ -1,1 +1,0 @@
-leptos::prelude::View<leptos::html::HtmlElement<leptos::html::Div, (Class<&str>, leptos::tachys::html::style::Style<(&str, &str)>, leptos::tachys::html::style::Style<(&str, {closure@src/main.rs:19:47: 19:54})>), (impl leptos::IntoView,)>>

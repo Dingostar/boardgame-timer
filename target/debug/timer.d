@@ -1,1 +1,0 @@
-/home/hans/projects/boardgame-timer/target/debug/timer: /home/hans/projects/boardgame-timer/src/main.rs /home/hans/projects/boardgame-timer/src/timer/config.rs /home/hans/projects/boardgame-timer/src/timer.rs

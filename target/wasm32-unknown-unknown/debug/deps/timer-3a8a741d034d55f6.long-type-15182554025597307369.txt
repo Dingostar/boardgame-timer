@@ -1,1 +1,0 @@
-for<'a> fn(&'a mut Vec<_, _>, usize, _) {Vec::<_, _>::resize}

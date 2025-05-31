@@ -1,1 +1,0 @@
-({closure@src/main.rs:13:18: 13:26}, leptos::html::HtmlElement<leptos::html::Div, (Class<&str>, On<click, {closure@src/main.rs:30:30: 30:38}>), ()>, leptos::html::HtmlElement<leptos::html::Div, (Class<&str>, leptos::tachys::html::style::Style<(&str, &str)>), (impl leptos::IntoView,)>): RenderHtml

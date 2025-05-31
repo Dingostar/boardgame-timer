@@ -1,7 +1,0 @@
-/home/hans/projects/boardgame-timer/target/debug/deps/libproc_macro_error_attr2-c61ff669d68eb2b6.so: /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/lib.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/parse.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/settings.rs
-
-/home/hans/projects/boardgame-timer/target/debug/deps/proc_macro_error_attr2-c61ff669d68eb2b6.d: /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/lib.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/parse.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/settings.rs
-
-/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/lib.rs:
-/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/parse.rs:
-/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-error-attr2-2.0.0/src/settings.rs:
