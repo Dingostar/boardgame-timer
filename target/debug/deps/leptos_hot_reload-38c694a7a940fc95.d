@@ -1,0 +1,11 @@
+/home/hans/projects/boardgame-timer/target/debug/deps/libleptos_hot_reload-38c694a7a940fc95.rmeta: /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/lib.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/diff.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/node.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/parsing.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/patch.js
+
+/home/hans/projects/boardgame-timer/target/debug/deps/libleptos_hot_reload-38c694a7a940fc95.rlib: /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/lib.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/diff.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/node.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/parsing.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/patch.js
+
+/home/hans/projects/boardgame-timer/target/debug/deps/leptos_hot_reload-38c694a7a940fc95.d: /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/lib.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/diff.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/node.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/parsing.rs /home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/patch.js
+
+/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/lib.rs:
+/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/diff.rs:
+/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/node.rs:
+/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/parsing.rs:
+/home/hans/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/leptos_hot_reload-0.8.2/src/patch.js:

@@ -1,0 +1,1 @@
+UserTimePropsBuilder<impl FnMut() + 'static, ((Player,), (leptos::prelude::ReadSignal<i32>,), (impl FnMut() + 'static,), (leptos::prelude::ReadSignal<f32>,), (leptos::prelude::ReadSignal<f32>,))>

@@ -1,0 +1,1 @@
+ForPropsBuilder<{closure@src/timer/config.rs:29:19: 29:26}, bool, _, _, _, _, _, (({closure@src/timer/config.rs:29:19: 29:26},), (), ())>

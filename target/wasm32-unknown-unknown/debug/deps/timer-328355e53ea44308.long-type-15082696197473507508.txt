@@ -1,0 +1,1 @@
+leptos::prelude::View<leptos::html::HtmlElement<Button, (On<click, {closure@src/main.rs:42:18: 42:26}>, leptos::tachys::html::style::Style<(&str, bool)>), (leptos::html::HtmlElement<leptos::html::P, (), ({closure@src/main.rs:54:13: 54:20},)>,)>>

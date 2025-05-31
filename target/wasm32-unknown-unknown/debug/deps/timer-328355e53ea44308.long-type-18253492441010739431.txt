@@ -1,0 +1,1 @@
+(leptos::html::HtmlElement<Td, (), (std::string::String,)>, std::iter::Map<std::vec::IntoIter<f32>, {closure@src/main.rs:139:66: 139:69}>): RenderHtml

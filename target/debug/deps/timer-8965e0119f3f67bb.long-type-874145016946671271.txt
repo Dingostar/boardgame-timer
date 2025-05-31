@@ -1,0 +1,1 @@
+leptos::html::HtmlElement<Button, (leptos::tachys::html::style::Style<&str>, Class<&str>), (impl leptos::IntoView,)>

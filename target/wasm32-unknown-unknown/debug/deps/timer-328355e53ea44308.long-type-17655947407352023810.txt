@@ -1,0 +1,2 @@
+leptos::prelude::View<(leptos::html::HtmlElement<leptos::html::P, (), ({closure@src/main.rs:15:13: 15:20},)>, fn(UserTimeProps) -> impl leptos::IntoView {UserTime}, fn(UserTimeProps) -> impl leptos::IntoView {UserTime})>: leptos::IntoView
+leptos::prelude::View<(leptos::html::HtmlElement<leptos::html::P, (), ({closure@src/main.rs:15:13: 15:20},)>, fn(UserTimeProps) -> impl leptos::IntoView {UserTime}, fn(UserTimeProps) -> impl leptos::IntoView {UserTime})>

@@ -1,0 +1,1 @@
+(leptos::html::HtmlElement<leptos::html::Div, (Class<&str>, leptos::tachys::html::style::Style<(&str, {closure@src/main.rs:13:34: 13:41})>), ()>, &str): RenderHtml

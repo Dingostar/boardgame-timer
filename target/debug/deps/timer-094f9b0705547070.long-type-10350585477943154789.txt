@@ -1,0 +1,2 @@
+<impl leptos::IntoView as leptos::prelude::AddAnyAttr>::Output<(On<click, {closure@src/main.rs:43:21: 43:28}>,)>: leptos::IntoView
+<impl leptos::IntoView as leptos::prelude::AddAnyAttr>::Output<(On<click, {closure@src/main.rs:43:21: 43:28}>,)>

@@ -1,0 +1,1 @@
+/home/hans/projects/boardgame-timer/target/wasm32-unknown-unknown/debug/timer.wasm: /home/hans/projects/boardgame-timer/src/main.rs /home/hans/projects/boardgame-timer/src/timer/config.rs /home/hans/projects/boardgame-timer/src/timer.rs

@@ -1,0 +1,1 @@
+UserTimePropsBuilder<{closure@src/timer.rs:49:20: 49:27}, ((Player,), (leptos::prelude::ReadSignal<i32>,), ({closure@src/timer.rs:49:20: 49:27},), (leptos::prelude::ReadSignal<f32>,), (leptos::prelude::ReadSignal<f32>,), ())>
