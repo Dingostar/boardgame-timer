@@ -3,11 +3,11 @@ mod config;
 pub use config::{Config, Configuration};
 
 use leptos::{logging, prelude::*};
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::time::Duration;
 use wasm_bindgen::JsCast;
 use web_time::Instant;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 #[derive(Clone)]
 struct Player {
@@ -19,7 +19,10 @@ struct Player {
 }
 
 #[component]
-pub fn App(panel_size: ReadSignal<(i32, i32, i32, i32)>, config: RwSignal<Config>) -> impl IntoView {
+pub fn App(
+    panel_size: ReadSignal<(i32, i32, i32, i32)>,
+    config: RwSignal<Config>,
+) -> impl IntoView {
     let (global_timer, set_global_timer) = signal(0.0);
     let (active_player, set_active_player) = signal(0);
     let (start_timer, set_start_timer) = signal(0.0);
@@ -45,7 +48,15 @@ pub fn App(panel_size: ReadSignal<(i32, i32, i32, i32)>, config: RwSignal<Config
                 player.name = config.get().names[i].clone();
                 player.position.set(pos);
                 player.time.set(Vec::new());
-                logging::log!("Player {} name set to {}, position set to ({}, {})", player.id, player.name, pos.0, pos.1);
+                player.rotation.set(0.0);
+
+                logging::log!(
+                    "Player {} name set to {}, position set to ({}, {})",
+                    player.id,
+                    player.name,
+                    pos.0,
+                    pos.1
+                );
             });
         });
         logging::log!("{} players", config.get().nplayers);
@@ -58,6 +69,9 @@ pub fn App(panel_size: ReadSignal<(i32, i32, i32, i32)>, config: RwSignal<Config
     };
 
     view! {
+
+        <button
+            on:click=move || {}
         <TimeTable players=players />
 
         <For each=move || players.get() key=|state| state.name.clone() let(child)>
@@ -73,10 +87,10 @@ fn Player(
     mut on_click: impl FnMut() + 'static,
     global_timer: ReadSignal<f32>,
     start_timer: ReadSignal<f32>,
-    panel_size: ReadSignal<(i32, i32, i32, i32)>
-) -> impl IntoView{
-    let current_panel_size = Rc::new(RefCell::new((0,0,0,0)));
-    let ppos =player.position.clone();
+    panel_size: ReadSignal<(i32, i32, i32, i32)>,
+) -> impl IntoView {
+    let current_panel_size = Rc::new(RefCell::new((0, 0, 0, 0)));
+    let ppos = player.position.clone();
     {
         let current_panel_size = Rc::clone(&current_panel_size);
         Effect::new(move || {
@@ -107,7 +121,6 @@ fn Player(
             let document = window.document().unwrap();
             ev.prevent_default();
 
-
             let move_handler = {
                 let player = player.clone();
                 let p_dragging = Rc::clone(&p_dragging);
@@ -115,31 +128,42 @@ fn Player(
                 wasm_bindgen::closure::Closure::wrap(Box::new(move |ev: web_sys::MouseEvent| {
                     if *p_dragging.borrow() {
                         let (x, y, panel_width, panel_height) = *current_panel_size.borrow();
-                        let new_x = (ev.client_x() - offset_x).max(x + 20).min(x + panel_width - 20);
-                        let new_y = (ev.client_y() - offset_y).max(y + 20).min(y + panel_height - 20);
+                        let new_x = (ev.client_x() - offset_x)
+                            .max(x + 20)
+                            .min(x + panel_width - 20);
+                        let new_y = (ev.client_y() - offset_y)
+                            .max(y + 20)
+                            .min(y + panel_height - 20);
                         player.position.set((new_x, new_y));
                     }
                 }) as Box<dyn FnMut(_)>)
             };
 
             let player_name = player.name.clone();
-            let up_handler = wasm_bindgen::closure::Closure::wrap(Box::new(move |_: web_sys::MouseEvent| {
-                if *p_dragging.borrow() {
-                    logging::log!("handle_mouse_up for player {}", player_name);
-                    p_dragging.replace(false);
-                }
+            let up_handler =
+                wasm_bindgen::closure::Closure::wrap(Box::new(move |_: web_sys::MouseEvent| {
+                    if *p_dragging.borrow() {
+                        logging::log!("handle_mouse_up for player {}", player_name);
+                        p_dragging.replace(false);
+                    }
+                }) as Box<dyn FnMut(_)>);
 
-            }) as Box<dyn FnMut(_)>);
-
-            document.add_event_listener_with_callback("mousemove", move_handler.as_ref().unchecked_ref()).unwrap();
-            document.add_event_listener_with_callback("mouseup", up_handler.as_ref().unchecked_ref()).unwrap();
+            document
+                .add_event_listener_with_callback(
+                    "mousemove",
+                    move_handler.as_ref().unchecked_ref(),
+                )
+                .unwrap();
+            document
+                .add_event_listener_with_callback("mouseup", up_handler.as_ref().unchecked_ref())
+                .unwrap();
 
             move_handler.forget();
             up_handler.forget();
         }
     };
-    let ppos1 =player.position.clone();
-    let ppos2 =player.position.clone();
+    let ppos1 = player.position.clone();
+    let ppos2 = player.position.clone();
     let p = player.clone();
     let p2 = player.clone();
     view! {
@@ -166,6 +190,38 @@ fn Player(
             </div>
             <UserTime player active_player on_click global_timer start_timer />
         </div>
+    }
+}
+
+struct Clock {
+    global_timer: ReadSignal<f32>,
+    start_timer: ReadSignal<f32>,
+    timer: RwSignal<f32>,
+    active: RwSignal<bool>,
+}
+
+impl Clock {
+    fn new(new_global_timer: ReadSignal<f32>, new_start_timer: ReadSignal<f32>) -> Self {
+        let m = Self {
+            global_timer: new_global_timer,
+            start_timer: new_start_timer,
+            timer: RwSignal::new(0.0),
+            active: RwSignal::new(false),
+        };
+        Effect::new(move || {
+            if m.active.get() {
+                m.timer.set(m.global_timer.get() - m.start_timer.get());
+            }
+        });
+        return m;
+    }
+
+    fn unpause() {
+        active.set(true)
+    }
+
+    fn pause() {
+        active.set(false)
     }
 }
 
@@ -225,7 +281,6 @@ fn UserTime(
 
 #[component]
 fn TimeTable(players: RwSignal<Vec<Player>>) -> impl IntoView {
-
     view! {
         <div class="time-table-container">
             <table class="time-table">

@@ -8,12 +8,16 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
-        Self {nplayers: 2, names: vec!["Player 1".to_string(), "Player 2".to_string()]}
+        Self {
+            nplayers: 0,
+            names: vec![],
+        }
+        //Self {nplayers: 2, names: vec!["Player 1".to_string(), "Player 2".to_string()]}
     }
 }
 
 #[component]
-pub fn Configuration(config_signal: RwSignal<Config>) -> impl IntoView{
+pub fn Configuration(config_signal: RwSignal<Config>) -> impl IntoView {
     let config = RwSignal::new(Config::new());
     view! {
         <div class="config-section config-container">
