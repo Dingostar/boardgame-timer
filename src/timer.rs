@@ -11,11 +11,22 @@ use web_time::Instant;
 
 #[derive(Clone)]
 struct Player {
-    id: i32,
-    name: String,
-    time: ArcRwSignal<Vec<f32>>,
+    id: usize,
+    name: RwSignal<String>,
+    time: RwSignal<Vec<f32>>,
     position: ArcRwSignal<(i32, i32)>,
-    rotation: ArcRwSignal<f32>,
+    rotation: RwSignal<f32>,
+}
+impl Player {
+    fn new(id: usize, name: String) -> Self {
+        Self {
+            id,
+            name: RwSignal::new(name),
+            time: RwSignal::new(Vec::new()),
+            position: ArcRwSignal::new(((id as i32 + 1) * 120, 250)),
+            rotation: RwSignal::new(0.0),
+        }
+    }
 }
 
 #[component]
@@ -23,56 +34,99 @@ pub fn App(
     panel_size: ReadSignal<(i32, i32, i32, i32)>,
     config: RwSignal<Config>,
 ) -> impl IntoView {
+    let background_timer = RwSignal::new(0.0);
+    let active_game = RwSignal::new(false);
+    let elapsed_time = RwSignal::new(0.0);
+    let unpause_time = RwSignal::new(0.0);
     let (global_timer, set_global_timer) = signal(0.0);
     let (active_player, set_active_player) = signal(0);
     let (start_timer, set_start_timer) = signal(0.0);
 
     let now = Instant::now();
-    let update = move || set_global_timer.set(now.elapsed().as_secs_f32());
+    let update = move || background_timer.set(now.elapsed().as_secs_f32());
     set_interval(update, Duration::from_millis(100));
 
-    let players: RwSignal<Vec<Player>> = RwSignal::new(Vec::new());
-
     Effect::new(move || {
-        players.update(|list| {
-            list.resize_with(config.get().nplayers as usize, move || Player {
-                id: 0,
-                name: String::new(),
-                time: ArcRwSignal::new(Vec::new()),
-                position: ArcRwSignal::new((0, 0)),
-                rotation: ArcRwSignal::new(0.0),
-            });
-            list.into_iter().enumerate().for_each(|(i, player)| {
-                let pos = ((i as i32 + 1) * 120, 250);
-                player.id = i as i32;
-                player.name = config.get().names[i].clone();
-                player.position.set(pos);
-                player.time.set(Vec::new());
-                player.rotation.set(0.0);
-
-                logging::log!(
-                    "Player {} name set to {}, position set to ({}, {})",
-                    player.id,
-                    player.name,
-                    pos.0,
-                    pos.1
-                );
-            });
-        });
-        logging::log!("{} players", config.get().nplayers);
+        if active_game.get() {
+            set_global_timer.set(elapsed_time.get() + background_timer.get() - unpause_time.get());
+        }
     });
-    let on_click = move || {
-        let next: i32 = (active_player.get() + 1) % config.get().nplayers;
+
+    let pause_unpause = move |_| {
+        active_game.set(!active_game.get());
+        if active_game.get() {
+            unpause_time.set(background_timer.get());
+        } else {
+            elapsed_time.set(global_timer.get());
+        }
+    };
+
+    let players = RwSignal::new(Vec::new());
+
+    let reset_players = move || {
+        let count = config.get().nplayers;
+        // Create a completely new vector of players with fresh signals.
+        let new_players = (0..count)
+            .map(|i| Player::new(i, config.get().names[i].clone()))
+            .collect();
+        players.set(new_players);
+        logging::log!(
+            "{} players, game {}",
+            config.get().nplayers,
+            config.get().game_counter
+        );
+    };
+    let reset_game = move || {
+        reset_players();
+    };
+    Effect::new(move |_| {
+        logging::log!("resetting game from effect");
+        reset_game();
+    });
+    let go_back = move |_| {
+        let next: usize = match active_player.get() == 0 {
+            true => config.get().nplayers - 1,
+            false => active_player.get() - 1,
+        };
+        let next_player = &mut players.get()[next];
+        let mut next_player_time = next_player.time.get();
+        if next_player_time.len() > 0 {
+            next_player_time.pop();
+            next_player.time.set(next_player_time);
+        }
+        set_active_player.set(next);
+        set_start_timer.set(global_timer.get());
+    };
+
+    let player_toggle = move || {
+        let next: usize = (active_player.get() + 1) % config.get().nplayers;
         logging::log!("calling increment on {}", next);
         set_active_player.set(next);
         set_start_timer.set(global_timer.get());
     };
 
     view! {
-        <TimeTable players=players />
-
-        <For each=move || players.get() key=|state| state.name.clone() let(child)>
-            <Player player=child active_player on_click global_timer start_timer panel_size />
+        <div>
+            <div>
+                <button on:click=pause_unpause>
+                    "start/stop"
+                </button>
+                <button on:click=go_back>
+                    "back"
+                </button>
+                <button on:click=move |_| {
+                    reset_game();
+                }>
+                    "reset"
+                </button>
+            </div>
+            <TimeTable players=players />
+        </div>
+        <For each=move || players.get()
+            key=move |state| state.name.clone()
+            let:player
+        >
+            <Player player active_player player_toggle global_timer start_timer panel_size />
         </For>
     }
 }
@@ -80,37 +134,39 @@ pub fn App(
 #[component]
 fn Player(
     player: Player,
-    active_player: ReadSignal<i32>,
-    mut on_click: impl FnMut() + 'static,
+    active_player: ReadSignal<usize>,
+    mut player_toggle: impl FnMut() + 'static,
     global_timer: ReadSignal<f32>,
     start_timer: ReadSignal<f32>,
     panel_size: ReadSignal<(i32, i32, i32, i32)>,
 ) -> impl IntoView {
     let current_panel_size = Rc::new(RefCell::new((0, 0, 0, 0)));
-    let ppos = player.position.clone();
+
+    let player_a1 = player.clone();
     {
         let current_panel_size = Rc::clone(&current_panel_size);
         Effect::new(move || {
             let new_size = panel_size.get();
             *current_panel_size.borrow_mut() = new_size;
-            let (pos_x, pos_y) = ppos.get();
+            let (pos_x, pos_y) = player_a1.position.get();
             let (x, y, panel_width, panel_height) = *current_panel_size.borrow();
             let new_x = (pos_x).max(x + 20).min(x + panel_width - 20);
             let new_y = (pos_y).max(y + 20).min(y + panel_height - 20);
             if pos_x != new_x || pos_y != new_y {
-                ppos.set((new_x, new_y));
+                player_a1.position.set((new_x, new_y));
             }
         });
     }
-    let player = player.clone();
+
+    let player1 = player.clone();
     let handle_mouse_down = {
-        let player = player.clone();
         let is_dragging = true;
+        let player2 = player1.clone();
         move |ev: web_sys::MouseEvent| {
-            logging::log!("handle_mouse_down for player {}", player.name);
+            logging::log!("handle_mouse_down for player {}", player2.name.get());
 
             let p_dragging = Rc::new(RefCell::new(is_dragging));
-            let (px, py) = player.position.get();
+            let (px, py) = player2.position.get();
             let offset_x = ev.client_x() - px;
             let offset_y = ev.client_y() - py;
 
@@ -118,10 +174,11 @@ fn Player(
             let document = window.document().unwrap();
             ev.prevent_default();
 
+            let player3 = player2.clone();
             let move_handler = {
-                let player = player.clone();
                 let p_dragging = Rc::clone(&p_dragging);
                 let current_panel_size = Rc::clone(&current_panel_size);
+
                 wasm_bindgen::closure::Closure::wrap(Box::new(move |ev: web_sys::MouseEvent| {
                     if *p_dragging.borrow() {
                         let (x, y, panel_width, panel_height) = *current_panel_size.borrow();
@@ -131,12 +188,12 @@ fn Player(
                         let new_y = (ev.client_y() - offset_y)
                             .max(y + 20)
                             .min(y + panel_height - 20);
-                        player.position.set((new_x, new_y));
+                        player3.position.set((new_x, new_y));
                     }
                 }) as Box<dyn FnMut(_)>)
             };
 
-            let player_name = player.name.clone();
+            let player_name = player2.name.get().clone();
             let up_handler =
                 wasm_bindgen::closure::Closure::wrap(Box::new(move |_: web_sys::MouseEvent| {
                     if *p_dragging.borrow() {
@@ -159,21 +216,23 @@ fn Player(
             up_handler.forget();
         }
     };
-    let ppos1 = player.position.clone();
-    let ppos2 = player.position.clone();
-    let p = player.clone();
-    let p2 = player.clone();
+
+    let pos = player.position.clone();
+    let pos2 = player.position.clone();
+    let rot = player.rotation.clone();
+
     view! {
         <div
-            class="absolute player-container"
-            style:left=move || format!("{}px", ppos1.get().0)
-            style:top=move || format!("{}px", ppos2.get().1)
-            style:transform=move || format!("rotate({}deg)", p2.rotation.get())
+            style:position="absolute"
+            style:left=move || format!("{}px", pos.get().0)
+            style:top=move || format!("{}px", pos2.get().1)
+            style:transform= move || format!("rotate({}deg)", rot.get())
+            class="player-container"
         >
             <div class="name-tag-row">
                 <button
                     class="rotation-button"
-                    on:click=move |_| { p.rotation.set(p.rotation.get() + 45.0) }
+                    on:click=move |_| { player.rotation.set(player.rotation.get() + 45.0) }
                     title="Rotate player"
                 ></button>
                 <div
@@ -182,50 +241,18 @@ fn Player(
                     style="user-select: none;"
                     title="Drag to move"
                 >
-                    <p>{move || format!("{}", p.name)}</p>
+                    <p>{move || format!("{}", player.name.get())}</p>
                 </div>
             </div>
-            <UserTime player active_player on_click global_timer start_timer />
+            <UserTime player active_player on_click=player_toggle global_timer start_timer />
         </div>
-    }
-}
-
-struct Clock {
-    global_timer: ReadSignal<f32>,
-    start_timer: ReadSignal<f32>,
-    timer: RwSignal<f32>,
-    active: RwSignal<bool>,
-}
-
-impl Clock {
-    fn new(new_global_timer: ReadSignal<f32>, new_start_timer: ReadSignal<f32>) -> Self {
-        let m = Self {
-            global_timer: new_global_timer,
-            start_timer: new_start_timer,
-            timer: RwSignal::new(0.0),
-            active: RwSignal::new(false),
-        };
-        Effect::new(move || {
-            if m.active.get() {
-                m.timer.set(m.global_timer.get() - m.start_timer.get());
-            }
-        });
-        return m;
-    }
-
-    fn unpause(&self) {
-        self.active.set(true)
-    }
-
-    fn pause(&self) {
-        self.active.set(false)
     }
 }
 
 #[component]
 fn UserTime(
     player: Player,
-    active_player: ReadSignal<i32>,
+    active_player: ReadSignal<usize>,
     mut on_click: impl FnMut() + 'static,
     global_timer: ReadSignal<f32>,
     start_timer: ReadSignal<f32>,
@@ -233,9 +260,8 @@ fn UserTime(
     let (utimer, set_utimer) = signal(0.0);
     let (active, set_active) = signal(false);
 
-    let id = player.id;
     Effect::new(move || {
-        set_active.set(id == active_player.get());
+        set_active.set(player.id == active_player.get());
         logging::log!("active_player {}", active_player.get());
     });
     Effect::new(move || {
@@ -243,14 +269,13 @@ fn UserTime(
             set_utimer.set(global_timer.get() - start_timer.get());
         }
     });
-    let ptime = player.time.clone();
     let mut toggle = move || {
         on_click();
-        ptime.update(|timer| timer.push(utimer.get()));
+        player.time.update(|timer| timer.push(utimer.get()));
         logging::log!(
             "pushing time on player {}: t{}",
-            id,
-            ptime.get().last().unwrap()
+            player.id,
+            player.time.get().last().unwrap()
         );
     };
 

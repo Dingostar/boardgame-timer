@@ -2,8 +2,9 @@ use leptos::{logging, prelude::*};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
-    pub nplayers: i32,
+    pub nplayers: usize,
     pub names: Vec<String>,
+    pub game_counter: usize,
 }
 
 impl Config {
@@ -11,6 +12,7 @@ impl Config {
         Self {
             nplayers: 0,
             names: vec![],
+            game_counter: 0,
         }
         //Self {nplayers: 2, names: vec!["Player 1".to_string(), "Player 2".to_string()]}
     }
@@ -30,7 +32,7 @@ pub fn Configuration(config_signal: RwSignal<Config>) -> impl IntoView {
                         on:input=move |ev| {
                             if let Ok(num) = event_target_value(&ev).parse() {
                                 config.update(|c| c.nplayers = num);
-                                config.update(|c| c.names.resize(num as usize, String::new()));
+                                config.update(|c| c.names.resize(num, String::new()));
                                 logging::log!(
                                     "Number of players changed to {}", config.get().nplayers
                                 );
@@ -51,7 +53,7 @@ pub fn Configuration(config_signal: RwSignal<Config>) -> impl IntoView {
                                 class="config-text-input config-player-item"
                                 on:input=move |ev| {
                                     let name = event_target_value(&ev);
-                                    config.update(|c| c.names[child as usize] = name);
+                                    config.update(|c| c.names[child] = name);
                                     logging::log!(
                                         "Player name changed to {}", config.get().names[child as usize]
                                     );
@@ -66,6 +68,7 @@ pub fn Configuration(config_signal: RwSignal<Config>) -> impl IntoView {
                 class="config-save-button"
                 on:click=move |_| {
                     logging::log!("Configuration saved, {}", config.get().nplayers);
+                    config.update(|c| c.game_counter = config_signal.get().game_counter + 1);
                     config_signal.set(config.get());
                 }
             >
