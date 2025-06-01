@@ -147,13 +147,11 @@
 
 /* TimeTable Styles */
 .time-table-container {
-    position: fixed !important;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 10px;
+    position: relative;
 }
 
 .time-table {
@@ -360,3 +358,130 @@
 .config-right {
     flex: 1; /* Take up remaining space */
 }
+
+/* Control Buttons Container */
+.control-buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 4px auto;
+    padding: 8px;
+    background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid #444;
+    position: relative;
+    width: fit-content;
+}
+
+/* Base Control Button Styles */
+.control-button {
+    padding: 4px 4px;
+    border: 0px solid transparent;
+    border-radius: 6px;
+    font-size: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    min-width: 16px;
+    min-height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.control-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Start Button */
+.control-button-start {
+    background: radial-gradient(#8aca8d, #55a158, #1d421e);
+    color: white;
+    border-color: #55a158;
+}
+
+.control-button-start:hover {
+    background: radial-gradient(#9dd4a0, #65b168, #2d522f);
+    box-shadow: 0 6px 12px rgba(85, 161, 88, 0.4);
+}
+
+/* Stop Button */
+.control-button-stop {
+    background: radial-gradient(#e28568, #ce4341, #862b0f);
+    color: white;
+    border-color: #ce4341;
+}
+
+.control-button-stop:hover {
+    background: radial-gradient(#e89578, #d85351, #963b1f);
+    box-shadow: 0 6px 12px rgba(206, 67, 65, 0.4);
+}
+
+/* Back Button */
+.control-button-back {
+    background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
+    color: #b0b0b0;
+    border-color: #4a4a4a;
+}
+
+.control-button-back:hover {
+    background: linear-gradient(135deg, #5a5a5a, #3a3a3a);
+    color: #d0d0d0;
+    box-shadow: 0 6px 12px rgba(74, 74, 74, 0.4);
+}
+
+/* Reset Button */
+.control-button-reset {
+    background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
+    color: #b0b0b0;
+    border-color: #4a4a4a;
+}
+
+.control-button-reset:hover {
+    background: linear-gradient(135deg, #5a5a5a, #3a3a3a);
+    color: #d0d0d0;
+    box-shadow: 0 6px 12px rgba(74, 74, 74, 0.4);
+}
+
+/* Button Icons (optional enhancement) */
+.control-button::before {
+    margin-right: 0;
+    font-size: 12px;
+}
+
+.control-button-start::before {
+    content: "▶";
+}
+
+.control-button-stop::before {
+    content: "■";
+}
+
+.control-button-back::before {
+    content: "↶";
+}
+
+.control-button-reset::before {
+    content: "⟲";
+}
+
+.global-content{
+    position: fixed !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+</text>
+
+</edits>
