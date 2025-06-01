@@ -16,15 +16,22 @@ struct Player {
     time: RwSignal<Vec<f32>>,
     position: ArcRwSignal<(i32, i32)>,
     rotation: RwSignal<f32>,
+    clock: Clock,
 }
 impl Player {
-    fn new(id: usize, name: String) -> Self {
+    fn new(
+        id: usize,
+        name: String,
+        global_timer: ReadSignal<f32>,
+        start_timer: ReadSignal<f32>,
+    ) -> Self {
         Self {
             id,
             name: RwSignal::new(name),
             time: RwSignal::new(Vec::new()),
             position: ArcRwSignal::new(((id as i32 + 1) * 120, 250)),
             rotation: RwSignal::new(0.0),
+            clock: Clock::new(global_timer, start_timer),
         }
     }
 }
@@ -67,7 +74,7 @@ pub fn App(
         let count = config.get().nplayers;
         // Create a completely new vector of players with fresh signals.
         let new_players = (0..count)
-            .map(|i| Player::new(i, config.get().names[i].clone()))
+            .map(|i| Player::new(i, config.get().names[i].clone(), global_timer, start_timer))
             .collect();
         players.set(new_players);
         logging::log!(
@@ -77,6 +84,9 @@ pub fn App(
         );
     };
     let reset_game = move || {
+        active_game.set(false);
+        set_global_timer.set(0.0);
+        set_start_timer.set(0.0);
         reset_players();
     };
     Effect::new(move |_| {
@@ -106,18 +116,22 @@ pub fn App(
     };
 
     view! {
-        <div>
-            <div>
-                <button on:click=pause_unpause>
-                    "start/stop"
+        <div class="global-content">
+            <div class="control-buttons-container">
+            <button class=move || {
+                    if active_game.get() {
+                        "control-button control-button-stop"
+                    } else {
+                        "control-button control-button-start"
+                    }
+                }
+                on:click=pause_unpause>
                 </button>
-                <button on:click=go_back>
-                    "back"
+                <button class="control-button control-button-back" on:click=go_back>
                 </button>
-                <button on:click=move |_| {
+                <button class="control-button control-button-reset" on:click=move |_| {
                     reset_game();
                 }>
-                    "reset"
                 </button>
             </div>
             <TimeTable players=players />
@@ -126,7 +140,7 @@ pub fn App(
             key=move |state| state.name.clone()
             let:player
         >
-            <Player player active_player player_toggle global_timer start_timer panel_size />
+            <Player player active_player player_toggle panel_size />
         </For>
     }
 }
@@ -136,8 +150,6 @@ fn Player(
     player: Player,
     active_player: ReadSignal<usize>,
     mut player_toggle: impl FnMut() + 'static,
-    global_timer: ReadSignal<f32>,
-    start_timer: ReadSignal<f32>,
     panel_size: ReadSignal<(i32, i32, i32, i32)>,
 ) -> impl IntoView {
     let current_panel_size = Rc::new(RefCell::new((0, 0, 0, 0)));
@@ -244,8 +256,32 @@ fn Player(
                     <p>{move || format!("{}", player.name.get())}</p>
                 </div>
             </div>
-            <UserTime player active_player on_click=player_toggle global_timer start_timer />
+            <UserTime player active_player player_toggle/>
         </div>
+    }
+}
+
+#[derive(Clone)]
+struct Clock {
+    global_timer: ReadSignal<f32>,
+    start_timer: ReadSignal<f32>,
+    active: RwSignal<bool>,
+    timer: RwSignal<f32>,
+}
+impl Clock {
+    fn new(global_timer: ReadSignal<f32>, start_timer: ReadSignal<f32>) -> Self {
+        let m = Clock {
+            global_timer,
+            start_timer,
+            active: RwSignal::new(false),
+            timer: RwSignal::new(0.0),
+        };
+        Effect::new(move || {
+            if m.active.get() {
+                m.timer.set(m.global_timer.get() - m.start_timer.get());
+            }
+        });
+        m
     }
 }
 
@@ -253,25 +289,18 @@ fn Player(
 fn UserTime(
     player: Player,
     active_player: ReadSignal<usize>,
-    mut on_click: impl FnMut() + 'static,
-    global_timer: ReadSignal<f32>,
-    start_timer: ReadSignal<f32>,
+    mut player_toggle: impl FnMut() + 'static,
 ) -> impl IntoView {
-    let (utimer, set_utimer) = signal(0.0);
-    let (active, set_active) = signal(false);
-
     Effect::new(move || {
-        set_active.set(player.id == active_player.get());
+        player.clock.active.set(player.id == active_player.get());
         logging::log!("active_player {}", active_player.get());
     });
-    Effect::new(move || {
-        if active.get() {
-            set_utimer.set(global_timer.get() - start_timer.get());
-        }
-    });
+
     let mut toggle = move || {
-        on_click();
-        player.time.update(|timer| timer.push(utimer.get()));
+        player_toggle();
+        player
+            .time
+            .update(|timer| timer.push(player.clock.timer.get()));
         logging::log!(
             "pushing time on player {}: t{}",
             player.id,
@@ -282,7 +311,7 @@ fn UserTime(
     view! {
         <button
             class=move || {
-                if active.get() {
+                if player.clock.active.get() {
                     "usertime-button usertime-button-active"
                 } else {
                     "usertime-button usertime-button-inactive"
@@ -291,12 +320,12 @@ fn UserTime(
 
             style:color="#1a1a1a"
             on:click=move |_| {
-                if active.get() {
+                if player.clock.active.get() {
                     toggle();
                 }
             }
         >
-            <p>{move || format!("{:.1}", utimer.get())}</p>
+            <p>{move || format!("{:.1}", player.clock.timer.get())}</p>
         </button>
     }
 }
